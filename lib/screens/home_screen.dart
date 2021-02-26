@@ -31,8 +31,6 @@ class Splash1 extends StatelessWidget{
       navigateAfterSeconds: new HomeScreen(),
       loadingText: Text("Loading"),
       image: Image.asset("assets/images/friends.jpg", width: double.infinity, height: double.infinity, fit: BoxFit.fill),
-      /*image: new Image.network('https://cdn.pixabay.com/photo/2018/05/17/11/24/friends-3408314__340.jpg', width: double.infinity,
-          height: double.infinity, fit: BoxFit.fill),*/
       photoSize: 200.0,
       loaderColor: Colors.blue,
     );

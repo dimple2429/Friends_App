@@ -25,6 +25,9 @@ class _ContactScreenState extends State<ContactScreen> {
 
 //focuses textfield when button is tapped.
   final _nameFocus = FocusNode();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _autoValidate = false;
+
 
   @override
   //method called once when stateful widegt is inserted into the widget tree
@@ -86,14 +89,21 @@ class _ContactScreenState extends State<ContactScreen> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            if(_editedContact.Fname != null && _editedContact.Fname.isNotEmpty  ) {
+           /* if (_formKey.currentState.validate()) {
+              _formKey.currentState.save();
+            }*/
+            if(_formKey.currentState.validate() &&_editedContact.Fname != null && _editedContact.Fname.isNotEmpty  ) {
               Navigator.pop(context, _editedContact);
+              _formKey.currentState.save();
             }
             else if(_editedContact.phone != null && _editedContact.phone.isNotEmpty  ){
               Navigator.pop(context, _editedContact);
             }
             else {
-              FocusScope.of(context).requestFocus(_nameFocus);
+            FocusScope.of(context).requestFocus(_nameFocus);
+            setState(() {
+            _autoValidate = true;
+            });
             }
           },
           child: Icon(Icons.save),
@@ -103,6 +113,8 @@ class _ContactScreenState extends State<ContactScreen> {
           padding: EdgeInsets.all(10.0),
           child:
           Form(
+            key: _formKey,
+            autovalidate: _autoValidate,
            child:Column(
             children: <Widget>[
               GestureDetector(
@@ -152,7 +164,6 @@ class _ContactScreenState extends State<ContactScreen> {
               TextFormField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
-                validator: validateMobile,
                 decoration: InputDecoration(
                     labelText: "Phone"
                 ),
@@ -160,10 +171,11 @@ class _ContactScreenState extends State<ContactScreen> {
                   _userEdited = true;
                   _editedContact.phone = text;
                 },
-                onSaved: (String val){
-                  _phoneController = val as TextEditingController;
-                },
-              ),
+                  maxLines: 1,
+                  validator: validateMobile,
+                  onSaved: (String val) {
+                    _phoneController.text = val;
+                  }),
             ],
           ),
           ),
@@ -172,12 +184,31 @@ class _ContactScreenState extends State<ContactScreen> {
     );
   }
 
-
 }
-String validateMobile(String value) {
-// Indian Mobile number are of 10 digit only
-  if (value.length != 10)
-    return 'Mobile Number must be of 10 digit';
-  else
+
+
+/// Validation Check
+String validateName(String value) {
+  if (value.length < 3)
+    return 'Name must be more than 2 charater';
+  else if (value.length > 30) {
+    return 'Name must be less than 30 charater';
+  } else
     return null;
 }
+
+String validateMobile(String value) {
+  Pattern pattern = r'^[0-9]*$';
+  RegExp regex = new RegExp(pattern);
+  if (value.trim().length != 10)
+    return 'Mobile Number must be of 10 digit';
+  else if (value.startsWith('+', 0)) {
+    return 'Mobile Number should not contain +91';
+  } else if (value.trim().contains(" ")) {
+    return 'Blank space is not allowed';
+  } else if (!regex.hasMatch(value)) {
+    return 'Characters are not allowed';
+  } else
+    return null;
+}
+
